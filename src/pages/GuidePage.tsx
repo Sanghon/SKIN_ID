@@ -42,7 +42,7 @@ export function GuidePage() {
         <div className="text-sm text-ink-soft">
           <p className="font-medium text-ink">사용 팁</p>
           <p className="mt-1">
-            한 장으로 5개 부위를 순서대로 지긋이 눌러 사용해요. 부위별로 나뉜 전용 종이는 필요 없어요.
+            한 장으로 5개 부위를 순서대로 지긋이 눌러 사용해요.
           </p>
         </div>
       </Card>

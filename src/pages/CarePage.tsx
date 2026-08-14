@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import careRoutineBanner from '../assets/care-routine-banner.png'
 import { Card, Pill } from '../components'
 import {
   BookmarkIcon,
@@ -53,6 +54,8 @@ export function CarePage() {
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
   const [showWhy, setShowWhy] = useState(false)
+  const [expandedStep, setExpandedStep] = useState<CareStep | null>(null)
+  const [selectedByStep, setSelectedByStep] = useState<Partial<Record<CareStep, string>>>({})
   const { products } = useProductStore()
   const { isWishlisted, toggle: toggleWishlist } = useWishlist()
 
@@ -67,7 +70,24 @@ export function CarePage() {
     ? Math.round(products.reduce((sum, p) => sum + p.matchScore, 0) / products.length)
     : 0
   const topPick = [...products].sort((a, b) => b.matchScore - a.matchScore)[0]
-  const routineProducts = STEP_ORDER.map((step) => products.find((p) => p.step === step)).filter(
+  const productsByStep = STEP_ORDER.reduce(
+    (acc, step) => {
+      acc[step] = products.filter((p) => p.step === step).sort((a, b) => b.matchScore - a.matchScore)
+      return acc
+    },
+    {} as Record<CareStep, typeof products>,
+  )
+  const selectedProductByStep = STEP_ORDER.reduce(
+    (acc, step) => {
+      const candidates = productsByStep[step]
+      const selectedId = selectedByStep[step]
+      const selected = candidates.find((p) => p.id === selectedId) ?? candidates[0]
+      if (selected) acc[step] = selected
+      return acc
+    },
+    {} as Partial<Record<CareStep, (typeof products)[number]>>,
+  )
+  const routineProducts = STEP_ORDER.map((step) => selectedProductByStep[step]).filter(
     (p): p is NonNullable<typeof p> => Boolean(p),
   )
 
@@ -102,42 +122,55 @@ export function CarePage() {
       </div>
 
       {routineProducts.length > 0 && (
-        <Card elevated className="flex flex-col gap-0 overflow-hidden p-0">
-          <div className="relative">
-            <div className="grid grid-cols-2 gap-0.5 bg-line">
-              {routineProducts.slice(0, 4).map((p) => (
-                <div key={p.id} className="aspect-square overflow-hidden bg-white">
-                  {p.imageUrl ? (
-                    <img src={p.imageUrl} alt={p.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-surface-2 text-[10px] text-ink-faint">
-                      {p.name}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/55 to-transparent" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
-            <div className="absolute inset-x-0 top-0 flex flex-wrap items-start gap-1.5 p-4">
-              <span className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/15 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-md">
-                <CareIcon width={12} height={12} />
-                T존 유분 {tZoneScore >= 60 ? '높음' : '보통'}
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/15 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-md">
-                <HumidityIcon width={12} height={12} />
-                U존 {uZoneScore < 40 ? '수분 부족' : '밸런스 양호'}
-              </span>
-            </div>
-            <div className="absolute inset-x-0 bottom-0 p-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">루틴 적합도</p>
-              <p className="font-display text-5xl font-semibold leading-tight tabular-nums text-white">
-                {fitScore}
-                <span className="text-xl align-top text-white/80">%</span>
-              </p>
+        <div
+          className="rounded-[28px] border p-4"
+          style={{
+            background: '#FFFCF8',
+            borderColor: '#E6DFD8',
+            boxShadow: '0 12px 36px rgba(73, 54, 70, 0.10)',
+          }}
+        >
+          <div className="relative aspect-[16/9] overflow-hidden rounded-[23px]">
+            <img
+              src={careRoutineBanner}
+              alt="오늘의 맞춤 케어 4종 세트"
+              className="h-full w-full object-cover object-right"
+            />
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-[55%] bg-gradient-to-r from-[#FFFCF8]/90 via-[#FFFCF8]/35 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-between p-3.5 sm:p-4">
+              <div className="flex max-w-[36%] flex-wrap items-start gap-1.5">
+                <span
+                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium"
+                  style={{ background: 'rgba(255,255,255,0.75)', color: '#493646', border: '1px solid rgba(230,223,216,0.9)' }}
+                >
+                  <CareIcon width={11} height={11} />
+                  T존 유분 {tZoneScore >= 60 ? '높음' : '보통'}
+                </span>
+                <span
+                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium"
+                  style={{ background: 'rgba(255,255,255,0.75)', color: '#493646', border: '1px solid rgba(230,223,216,0.9)' }}
+                >
+                  <HumidityIcon width={11} height={11} />
+                  U존 {uZoneScore < 40 ? '수분 부족' : '밸런스 양호'}
+                </span>
+              </div>
+              <div className="max-w-[36%]">
+                <p className="text-[11px] font-medium uppercase tracking-[0.18em]" style={{ color: '#82699a' }}>
+                  루틴 적합도
+                </p>
+                <p
+                  className="font-display font-semibold leading-tight tabular-nums text-[clamp(2rem,9vw,3.25rem)]"
+                  style={{ color: '#493646' }}
+                >
+                  {fitScore}
+                  <span className="align-top text-[0.5em]" style={{ color: '#82699a' }}>
+                    %
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
-          <div className="flex items-start justify-between gap-3 border-t border-line/60 px-4 py-4">
+          <div className="flex items-start justify-between gap-3 pt-4">
             <div className="min-w-0">
               <Pill tone="accent" className="w-fit">
                 1순위 추천 조합
@@ -149,7 +182,7 @@ export function CarePage() {
               <p className="mt-1 text-[11px] text-ink-faint">패키지 구매 시 추가 할인 혜택은 준비 중이에요.</p>
             </div>
           </div>
-        </Card>
+        </div>
       )}
 
       <div className="flex flex-col gap-3">
@@ -159,8 +192,10 @@ export function CarePage() {
         </div>
 
         {STEP_ORDER.map((step) => {
-          const product = products.find((p) => p.step === step)
+          const product = selectedProductByStep[step]
           if (!product) return null
+          const alternates = productsByStep[step].filter((p) => p.id !== product.id)
+          const isExpanded = expandedStep === step
           const Icon = STEP_ICON[step]
           const wishlisted = isWishlisted(product.id)
           return (
@@ -171,7 +206,7 @@ export function CarePage() {
                     <img
                       src={product.imageUrl}
                       alt={product.name}
-                      className="w-28 shrink-0 self-stretch object-cover"
+                      className="w-28 shrink-0 self-stretch rounded-l-[23px] object-cover"
                     />
                   ) : (
                     <span className={`flex w-28 shrink-0 items-center justify-center ${STEP_SWATCH[step]}`}>
@@ -211,6 +246,57 @@ export function CarePage() {
               >
                 <HeartIcon width={14} height={14} filled={wishlisted} />
               </button>
+
+              {alternates.length > 0 && (
+                <div className="mt-1.5 px-1">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedStep(isExpanded ? null : step)}
+                    className="flex items-center gap-1 text-xs font-medium text-ink-faint"
+                  >
+                    다른 제품 보기 ({alternates.length})
+                    <ChevronRightIcon
+                      width={12}
+                      height={12}
+                      className={`transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                    />
+                  </button>
+                  {isExpanded && (
+                    <div className="mt-2 flex flex-col gap-2">
+                      {alternates.map((alt) => (
+                        <button
+                          key={alt.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedByStep((prev) => ({ ...prev, [step]: alt.id }))
+                            setExpandedStep(null)
+                          }}
+                          className="flex items-center gap-3 rounded-2xl border border-line bg-white p-2 text-left transition-colors active:bg-surface-2"
+                        >
+                          {alt.imageUrl ? (
+                            <img
+                              src={alt.imageUrl}
+                              alt={alt.name}
+                              className="h-12 w-12 shrink-0 rounded-[14px] object-cover"
+                            />
+                          ) : (
+                            <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] ${STEP_SWATCH[step]}`}>
+                              <Icon width={18} height={18} className="text-ink" />
+                            </span>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-xs font-medium text-ink">{alt.name}</p>
+                            <p className="text-[11px] text-ink-faint">{alt.brand}</p>
+                          </div>
+                          <Pill tone="neutral" className="shrink-0">
+                            {alt.matchScore}% 맞춤
+                          </Pill>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )
         })}

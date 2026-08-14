@@ -1,7 +1,15 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Card } from '../components'
-import { ChevronLeftIcon, GalleryIcon, LockIcon, RefreshIcon, ScanIcon, SparkleIcon } from '../components/icons'
+import {
+  ChevronLeftIcon,
+  CloseIcon,
+  GalleryIcon,
+  LockIcon,
+  RefreshIcon,
+  ScanIcon,
+  SparkleIcon,
+} from '../components/icons'
 import { useGuidelineImages } from '../lib/guidelineImages'
 import { cameraProvider } from '../services/camera'
 import { FACE_ZONES } from '../types/measurement'
@@ -22,7 +30,6 @@ export function CapturePage() {
   const [zoneCaptures, setZoneCaptures] = useState<ZoneCapture[]>([])
   const [preview, setPreview] = useState<Captured | null>(null)
   const [showTips, setShowTips] = useState(false)
-  const [expandedTip, setExpandedTip] = useState<string | null>(null)
   const { images: tipImages } = useGuidelineImages()
 
   const stepIndex = zoneCaptures.length
@@ -56,19 +63,9 @@ export function CapturePage() {
 
   return (
     <div className="flex flex-1 flex-col gap-5">
-      <header className="flex items-center justify-between">
+      <header className="flex items-center">
         <button type="button" onClick={() => navigate(-1)} aria-label="뒤로 가기" className="text-ink">
           <ChevronLeftIcon width={22} height={22} />
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowTips((v) => !v)}
-          className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-            showTips ? 'bg-accent text-accent-ink' : 'bg-surface-2 text-ink-soft'
-          }`}
-        >
-          <SparkleIcon width={14} height={14} />
-          사용팁
         </button>
       </header>
 
@@ -114,37 +111,47 @@ export function CapturePage() {
         )}
       </Card>
 
-      {showTips && (
-        <Card className="flex flex-col gap-2">
-          {tipImages.length > 0 ? (
-            <div className="flex snap-x gap-2 overflow-x-auto pb-1">
-              {tipImages.map((src, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setExpandedTip(src)}
-                  aria-label={`사용팁 ${i + 1} 크게 보기`}
-                  className="shrink-0 snap-center"
-                >
-                  <img src={src} alt={`사용팁 ${i + 1}`} className="h-40 w-40 rounded-2xl object-cover" />
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-ink-faint">등록된 사용팁 이미지가 아직 없어요.</p>
-          )}
-        </Card>
-      )}
+      <button
+        type="button"
+        onClick={() => setShowTips(true)}
+        className="flex items-center gap-1 self-end rounded-full bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors"
+      >
+        <SparkleIcon width={14} height={14} />
+        사용팁
+      </button>
 
-      {expandedTip && (
-        <button
-          type="button"
-          onClick={() => setExpandedTip(null)}
-          aria-label="확대 이미지 닫기"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"
+      {showTips && (
+        <div
+          role="dialog"
+          aria-label="사용팁 확대 이미지"
+          className="fixed inset-0 z-50 flex flex-col bg-black/80 p-6"
         >
-          <img src={expandedTip} alt="사용팁 확대 이미지" className="max-h-full max-w-full rounded-2xl object-contain" />
-        </button>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-white">사용팁</p>
+            <button
+              type="button"
+              onClick={() => setShowTips(false)}
+              aria-label="닫기"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white"
+            >
+              <CloseIcon width={16} height={16} />
+            </button>
+          </div>
+          <div className="flex flex-1 items-center gap-4 overflow-x-auto pt-4">
+            {tipImages.length > 0 ? (
+              tipImages.map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt={`사용팁 ${i + 1}`}
+                  className="h-full max-h-full shrink-0 snap-center rounded-2xl object-contain"
+                />
+              ))
+            ) : (
+              <p className="m-auto text-sm text-white/70">등록된 사용팁 이미지가 아직 없어요.</p>
+            )}
+          </div>
+        </div>
       )}
 
       {error && <p className="text-sm text-danger">{error}</p>}

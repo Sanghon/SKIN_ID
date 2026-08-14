@@ -104,7 +104,7 @@ export function HomePage() {
 
       <Card elevated className="flex flex-col gap-0 overflow-hidden p-0">
         <div className="relative h-72 w-full bg-white">
-          <img src={heroPhoto} alt="내 피부 대표 사진" className="h-full w-full object-cover" />
+          <img src={heroPhoto} alt="내 피부 대표 사진" className="h-full w-full rounded-t-[23px] object-cover" />
           <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/25 to-transparent" />
           <button
             type="button"
