@@ -1,0 +1,240 @@
+@import 'tailwindcss';
+@import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+@import '@fontsource/fraunces/400.css';
+@import '@fontsource/fraunces/500-italic.css';
+@import '@fontsource/fraunces/600.css';
+@import '@fontsource/manrope/500.css';
+@import '@fontsource/manrope/700.css';
+
+/*
+  OILOG design tokens.
+  Source of truth: proposal doc §5 (Design Direction — OILOG 로고 팔레트 기준 확정).
+  Four brand presets ship side by side, switched at runtime via [data-brand] on <html>
+  (see src/lib/theme.ts, wired up from the admin settings page):
+    - default / [data-brand='lime']: the original OILOG lime palette.
+    - [data-brand='warm']: the Warm Ivory / Deep Plum palette from 벤치마킹.png.
+    - [data-brand='teen']: a bright hot-pink / violet palette aimed at younger users.
+    - [data-brand='cool']: a cool blue/teal-toned palette (쿨 톤 계열).
+  The app is always light-mode: every preset defines only light-mode values, and OS-level
+  dark-mode preference is intentionally NOT honored (color-scheme: light), so the
+  background (--paper) always stays pure white regardless of device dark-mode setting.
+*/
+:root {
+  --paper: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #eef0ea;
+  --ink: #16294d;
+  --ink-soft: #51607a;
+  --ink-faint: #8993a8;
+  --line: #dee1d8;
+  --accent: #b6ff2e;
+  --accent-ink: #16294d;
+  --accent-soft: #eeffcf;
+  --pop-coral: #ff6a5e;
+  --pop-coral-soft: #ffe2de;
+  --pop-yellow: #ffd23f;
+  --pop-yellow-soft: #fff3cf;
+  --lab: #3e5c86;
+  --lab-soft: #e4e9f1;
+  --danger: #c1533f;
+  --shadow-sm: 0 1px 2px rgba(22, 41, 77, 0.06);
+  --shadow-md: 0 4px 16px rgba(22, 41, 77, 0.08);
+
+  color-scheme: light;
+}
+
+/* Warm preset — light (Warm Ivory / Deep Plum), from the user's 벤치마킹.png color spec. */
+:root[data-brand='warm'] {
+  --paper: #ffffff;
+  --surface: #fffcf8;
+  --surface-2: #f0eae1;
+  --ink: #252126;
+  --ink-soft: #766c73;
+  --ink-faint: #9c949a;
+  --line: #e6dfd8;
+  --accent: #493646;
+  --accent-ink: #fffcf8;
+  --accent-soft: #c9bed6;
+  --pop-coral: #d28a7e;
+  --pop-coral-soft: #f2dcd7;
+  --pop-yellow: #e7c5c0;
+  --pop-yellow-soft: #f7e9e6;
+  --lab: #718169;
+  --lab-soft: #e4e9e1;
+  --danger: #b5493a;
+  --shadow-sm: 0 1px 2px rgba(73, 54, 70, 0.08);
+  --shadow-md: 0 4px 16px rgba(73, 54, 70, 0.14);
+}
+
+/* Teen preset — 틴에이저 팝. Bright hot-pink / electric-violet palette aimed at younger users. */
+:root[data-brand='teen'] {
+  --paper: #ffffff;
+  --surface: #fffbfd;
+  --surface-2: #f9edfb;
+  --ink: #33144d;
+  --ink-soft: #82699a;
+  --ink-faint: #b9a4cb;
+  --line: #f3ddef;
+  --accent: #ff2e93;
+  --accent-ink: #ffffff;
+  --accent-soft: #ffd9ec;
+  --pop-coral: #ff6f61;
+  --pop-coral-soft: #ffe1dc;
+  --pop-yellow: #ffe066;
+  --pop-yellow-soft: #fff8d6;
+  --lab: #7b2ff7;
+  --lab-soft: #ece0fd;
+  --danger: #e63950;
+  --shadow-sm: 0 1px 2px rgba(123, 47, 247, 0.08);
+  --shadow-md: 0 4px 16px rgba(123, 47, 247, 0.16);
+}
+
+/* Cool preset — 쿨 톤 계열, light (soft blue/teal). */
+:root[data-brand='cool'] {
+  --paper: #ffffff;
+  --surface: #f7fafc;
+  --surface-2: #eaf1f7;
+  --ink: #16232f;
+  --ink-soft: #52697d;
+  --ink-faint: #8698a8;
+  --line: #dbe6ee;
+  --accent: #2f6fed;
+  --accent-ink: #ffffff;
+  --accent-soft: #dbe7fd;
+  --pop-coral: #ef7d6f;
+  --pop-coral-soft: #fbe1dc;
+  --pop-yellow: #f2c14e;
+  --pop-yellow-soft: #fbeecb;
+  --lab: #14b8a6;
+  --lab-soft: #d7f3ef;
+  --danger: #d9483a;
+  --shadow-sm: 0 1px 2px rgba(22, 45, 77, 0.07);
+  --shadow-md: 0 4px 16px rgba(22, 45, 77, 0.12);
+}
+
+/* Tailwind v4 CSS-first theme: register the semantic tokens as utility classes
+   (bg-paper, text-ink, border-line, bg-accent, ...) without hardcoding hex values,
+   so utilities stay theme-reactive via the CSS variables above. */
+@theme inline {
+  --font-sans: 'Pretendard Variable', Pretendard, 'SUIT Variable', -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', 'Segoe UI', system-ui, Roboto, 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-display: 'Fraunces', 'Pretendard Variable', Pretendard, serif;
+  --font-accent: 'Manrope', 'Pretendard Variable', Pretendard, sans-serif;
+
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-pop-coral: var(--pop-coral);
+  --color-pop-coral-soft: var(--pop-coral-soft);
+  --color-pop-yellow: var(--pop-yellow);
+  --color-pop-yellow-soft: var(--pop-yellow-soft);
+  --color-lab: var(--lab);
+  --color-lab-soft: var(--lab-soft);
+  --color-danger: var(--danger);
+
+  --shadow-card: var(--shadow-sm);
+  --shadow-elevated: var(--shadow-md);
+
+  --breakpoint-sm: 360px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@keyframes sun-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sun-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.88);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes sun-core-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes rain-fall {
+  0% {
+    transform: translateY(-3px);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(7px);
+    opacity: 0;
+  }
+}
+
+@keyframes rain-cloud-drift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-0.6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-anim-sunny *,
+  .icon-anim-rainy * {
+    animation: none !important;
+  }
+}
