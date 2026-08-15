@@ -1,25 +1,12 @@
-import { useSyncExternalStore } from 'react'
+import { useEffect, useSyncExternalStore } from 'react'
+import { addWishlistApi, fetchWishlist, removeWishlistApi } from './api'
 
-const STORAGE_KEY = 'oilog-wishlist'
-
-function readStored(): string[] {
-  if (typeof window === 'undefined') return []
-  const raw = window.localStorage.getItem(STORAGE_KEY)
-  if (!raw) return []
-  try {
-    const parsed = JSON.parse(raw) as unknown
-    return Array.isArray(parsed) ? (parsed as string[]) : []
-  } catch {
-    return []
-  }
-}
-
-let cached: string[] = readStored()
+let cached: string[] = []
+let loaded = false
+let loadPromise: Promise<void> | null = null
 const listeners = new Set<() => void>()
 
-function persist(next: string[]) {
-  cached = next
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+function notify() {
   listeners.forEach((listener) => listener())
 }
 
@@ -36,17 +23,43 @@ function getServerSnapshot() {
   return []
 }
 
+function ensureLoaded(): void {
+  if (loaded || loadPromise) return
+  loadPromise = fetchWishlist()
+    .then((ids) => {
+      cached = ids
+      loaded = true
+      notify()
+    })
+    .catch(() => {
+      loaded = true
+    })
+}
+
 /** 관심품목(장바구니) 담긴 제품 id 목록. 여러 화면(케어, 상세, 장바구니 배지)에서 동시에 마운트돼도 실시간으로 동기화된다. */
 export function useWishlist() {
   const ids = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  useEffect(ensureLoaded, [])
 
   function add(productId: string) {
     if (cached.includes(productId)) return
-    persist([...cached, productId])
+    const previous = cached
+    cached = [...cached, productId]
+    notify()
+    addWishlistApi(productId).catch(() => {
+      cached = previous
+      notify()
+    })
   }
 
   function remove(productId: string) {
-    persist(cached.filter((id) => id !== productId))
+    const previous = cached
+    cached = cached.filter((id) => id !== productId)
+    notify()
+    removeWishlistApi(productId).catch(() => {
+      cached = previous
+      notify()
+    })
   }
 
   function toggle(productId: string) {
@@ -58,7 +71,13 @@ export function useWishlist() {
   }
 
   function clear() {
-    persist([])
+    const previous = cached
+    cached = []
+    notify()
+    Promise.all(previous.map((id) => removeWishlistApi(id))).catch(() => {
+      cached = previous
+      notify()
+    })
   }
 
   return {

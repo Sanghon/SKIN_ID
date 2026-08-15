@@ -1,65 +1,54 @@
 import { useState } from 'react'
-import { mockProducts } from '../services/data/mockProducts'
+import { mockProducts } from '../services/data/store'
 import type { Product } from '../types/product'
-import { fileToCompressedDataUrl, pickImageFile, trySetItem } from './imageFile'
+import { createProductApi, deleteProductApi, updateProductApi, uploadImage } from './api'
+import { fileToCompressedDataUrl, pickImageFile } from './imageFile'
 import { showToast } from './toast'
 
-const STORAGE_KEY = 'oilog-products'
-
-function readStored(): Product[] | null {
-  if (typeof window === 'undefined') return null
-  const raw = window.localStorage.getItem(STORAGE_KEY)
-  if (!raw) return null
+/** Opens the native image picker, compresses it, uploads it to R2, and resolves to its served URL (or null if cancelled/failed). */
+export async function pickImageDataUrl(): Promise<string | null> {
+  const file = await pickImageFile()
+  if (!file) return null
+  const dataUrl = await fileToCompressedDataUrl(file)
   try {
-    return JSON.parse(raw) as Product[]
+    return await uploadImage(dataUrl, 'products')
   } catch {
+    showToast('이미지 업로드에 실패했어요.')
     return null
   }
 }
 
-export function getProducts(): Product[] {
-  return readStored() ?? mockProducts
-}
-
-function saveProducts(products: Product[]): boolean {
-  return trySetItem(STORAGE_KEY, JSON.stringify(products))
-}
-
-export function resetProducts() {
-  window.localStorage.removeItem(STORAGE_KEY)
-}
-
-/** Opens the native image picker and resolves to a compressed data URL, or null if cancelled. */
-export async function pickImageDataUrl(): Promise<string | null> {
-  const file = await pickImageFile()
-  if (!file) return null
-  return fileToCompressedDataUrl(file)
-}
-
-/** Admin CRUD over the care-product catalog, persisted to localStorage. Currently open to everyone (no auth gate yet). */
+/** Admin CRUD over the care-product catalog, backed by the D1 API. Currently open to everyone (no auth gate yet). */
 export function useProductStore() {
-  const [products, setProducts] = useState<Product[]>(() => getProducts())
+  const [products, setProducts] = useState<Product[]>(mockProducts)
 
   function addProduct(product: Product) {
-    const next = [...products, product]
-    setProducts(next)
-    if (!saveProducts(next)) showToast('저장에 실패했어요. 용량을 확인해주세요.')
+    setProducts((prev) => [...prev, product])
+    createProductApi(product).catch(() => {
+      showToast('저장에 실패했어요. 다시 시도해주세요.')
+      setProducts((prev) => prev.filter((p) => p.id !== product.id))
+    })
   }
 
   function updateProduct(id: string, patch: Partial<Product>) {
-    const next = products.map((p) => (p.id === id ? { ...p, ...patch } : p))
-    setProducts(next)
-    if (!saveProducts(next)) showToast('저장에 실패했어요. 용량을 확인해주세요.')
+    const previous = products
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)))
+    updateProductApi(id, patch).catch(() => {
+      showToast('저장에 실패했어요. 다시 시도해주세요.')
+      setProducts(previous)
+    })
   }
 
   function removeProduct(id: string) {
-    const next = products.filter((p) => p.id !== id)
-    setProducts(next)
-    saveProducts(next)
+    const previous = products
+    setProducts((prev) => prev.filter((p) => p.id !== id))
+    deleteProductApi(id).catch(() => {
+      showToast('삭제에 실패했어요. 다시 시도해주세요.')
+      setProducts(previous)
+    })
   }
 
   function reset() {
-    resetProducts()
     setProducts(mockProducts)
   }
 

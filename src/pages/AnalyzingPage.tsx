@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { uploadImage } from '../lib/api'
+import { showToast } from '../lib/toast'
 import { analysisEngine } from '../services/analysis'
+import { registerMeasurement } from '../services/data/store'
 
 const STATUS_LINES = [
   '기름종이 영역을 확인하고 있어요',
@@ -41,20 +44,22 @@ export function AnalyzingPage() {
         capturedAt: state.capturedAt,
       }),
       new Promise((resolve) => setTimeout(resolve, stepMs * STATUS_LINES.length)),
-    ]).then(([result]) => {
-      clearInterval(lineTimer)
-      const id = `local-${Date.now()}`
-      navigate(`/result/${id}`, {
-        replace: true,
-        state: {
-          id,
-          userId: 'user-1',
-          capturedAt: state.capturedAt,
-          imageUrl: state.imageUrl,
-          result,
-        },
+    ])
+      .then(async ([result]) => {
+        clearInterval(lineTimer)
+        const imageUrl = await uploadImage(state.imageUrl, 'measurements')
+        const created = await registerMeasurement(state.capturedAt, imageUrl, result)
+        navigate(`/result/${created.id}`, {
+          replace: true,
+          state: created,
+        })
       })
-    })
+      .catch((err) => {
+        clearInterval(lineTimer)
+        console.error(err)
+        showToast('분석 저장에 실패했어요. 다시 시도해주세요.')
+        navigate('/capture', { replace: true })
+      })
 
     return () => clearInterval(lineTimer)
     // eslint-disable-next-line react-hooks/exhaustive-deps

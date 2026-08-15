@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "oilog",
+  "compatibility_date": "2026-08-01",
+  "pages_build_output_dir": "dist",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "oilog-db",
+      "database_id": "b0b78b31-4bb3-4558-b032-e2f3ba10b235"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "oilog-media"
+    }
+  ]
+}

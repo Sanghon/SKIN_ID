@@ -1,32 +1,18 @@
-import { useSyncExternalStore } from 'react'
-import { fileToCompressedDataUrl, pickImageFile, trySetItem } from './imageFile'
+import { useEffect, useSyncExternalStore } from 'react'
+import { addGuidelineImageApi, fetchGuidelineImages, removeGuidelineImageApi, uploadImage } from './api'
+import type { GuidelineImageDTO } from './api'
+import { fileToCompressedDataUrl, pickImageFile } from './imageFile'
 import { showToast } from './toast'
 
-const STORAGE_KEY = 'oilog-guideline-images'
 export const MAX_GUIDELINE_IMAGES = 3
 
-function readStored(): string[] {
-  if (typeof window === 'undefined') return []
-  const raw = window.localStorage.getItem(STORAGE_KEY)
-  if (!raw) return []
-  try {
-    const parsed = JSON.parse(raw) as unknown
-    return Array.isArray(parsed) ? (parsed as string[]) : []
-  } catch {
-    return []
-  }
-}
-
-let cached: string[] = readStored()
+let cached: GuidelineImageDTO[] = []
+let loaded = false
+let loadPromise: Promise<void> | null = null
 const listeners = new Set<() => void>()
 
-function persist(next: string[]): boolean {
-  const ok = trySetItem(STORAGE_KEY, JSON.stringify(next))
-  if (ok) {
-    cached = next
-    listeners.forEach((listener) => listener())
-  }
-  return ok
+function notify() {
+  listeners.forEach((listener) => listener())
 }
 
 function subscribe(listener: () => void) {
@@ -38,25 +24,54 @@ function getSnapshot() {
   return cached
 }
 
-function getServerSnapshot() {
+function getServerSnapshot(): GuidelineImageDTO[] {
   return []
+}
+
+function ensureLoaded(): void {
+  if (loaded || loadPromise) return
+  loadPromise = fetchGuidelineImages()
+    .then((images) => {
+      cached = images
+      loaded = true
+      notify()
+    })
+    .catch(() => {
+      loaded = true
+    })
 }
 
 /** 촬영 화면 "사용팁" 가이드 이미지(최대 3장). 관리자가 등록·삭제할 수 있다. (현재는 권한 제한 없이 전체 공개) */
 export function useGuidelineImages() {
-  const images = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  const entries = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  useEffect(ensureLoaded, [])
+  const images = entries.map((e) => e.imageUrl)
 
   async function addImage() {
-    if (images.length >= MAX_GUIDELINE_IMAGES) return
+    if (entries.length >= MAX_GUIDELINE_IMAGES) return
     const file = await pickImageFile()
     if (!file) return
     const dataUrl = await fileToCompressedDataUrl(file)
-    const ok = persist([...images, dataUrl])
-    if (!ok) showToast('이미지 저장에 실패했어요. 용량을 확인해주세요.')
+    try {
+      const imageUrl = await uploadImage(dataUrl, 'guidelines')
+      const created = await addGuidelineImageApi(imageUrl)
+      cached = [...cached, created]
+      notify()
+    } catch {
+      showToast('이미지 저장에 실패했어요. 다시 시도해주세요.')
+    }
   }
 
   function removeImage(index: number) {
-    persist(images.filter((_, i) => i !== index))
+    const entry = entries[index]
+    if (!entry) return
+    const previous = cached
+    cached = cached.filter((e) => e.id !== entry.id)
+    notify()
+    removeGuidelineImageApi(entry.id).catch(() => {
+      cached = previous
+      notify()
+    })
   }
 
   return { images, addImage, removeImage, maxImages: MAX_GUIDELINE_IMAGES } as const
