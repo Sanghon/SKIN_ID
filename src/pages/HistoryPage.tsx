@@ -11,7 +11,7 @@ import {
   YAxis,
 } from 'recharts'
 import { Card, Pill, ScoreLegend } from '../components'
-import { InfoIcon, StarIcon, WeatherConditionIcon } from '../components/icons'
+import { ChevronLeftIcon, ChevronRightIcon, InfoIcon, StarIcon, WeatherConditionIcon } from '../components/icons'
 import { getOilScoreTone, getSkinTypeLabel, SCORE_LEGEND, TONE_VAR } from '../lib/skinAdvice'
 import type { AdviceTone } from '../lib/skinAdvice'
 import { getWeatherForDate, mockMeasurements, mockProducts, mockRoutineEvents } from '../services/data'
@@ -238,23 +238,58 @@ function ZoneCompareCard() {
 
 function MonthCalendarCard() {
   const latestDate = new Date(mockMeasurements[mockMeasurements.length - 1].capturedAt)
-  const year = latestDate.getFullYear()
-  const month = latestDate.getMonth()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const startWeekday = new Date(year, month, 1).getDay()
-  const todayKey = toDateKey(new Date())
+  const [viewYear, setViewYear] = useState(latestDate.getFullYear())
+  const [viewMonth, setViewMonth] = useState(latestDate.getMonth())
+
+  const today = new Date()
+  const isCurrentMonth = viewYear === today.getFullYear() && viewMonth === today.getMonth()
+
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
+  const startWeekday = new Date(viewYear, viewMonth, 1).getDay()
+  const todayKey = toDateKey(today)
 
   const cells: ({ day: number; dateKey: string } | null)[] = [
     ...Array.from({ length: startWeekday }, () => null),
-    ...Array.from({ length: daysInMonth }, (_, i) => ({ day: i + 1, dateKey: `${year}-${pad2(month + 1)}-${pad2(i + 1)}` })),
+    ...Array.from({ length: daysInMonth }, (_, i) => ({
+      day: i + 1,
+      dateKey: `${viewYear}-${pad2(viewMonth + 1)}-${pad2(i + 1)}`,
+    })),
   ]
+
+  function goToPrevMonth() {
+    setViewYear((y) => (viewMonth === 0 ? y - 1 : y))
+    setViewMonth((m) => (m === 0 ? 11 : m - 1))
+  }
+
+  function goToNextMonth() {
+    if (isCurrentMonth) return
+    setViewYear((y) => (viewMonth === 11 ? y + 1 : y))
+    setViewMonth((m) => (m === 11 ? 0 : m + 1))
+  }
 
   return (
     <Card elevated className="flex flex-col gap-3">
       <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          aria-label="이전 달"
+          onClick={goToPrevMonth}
+          className="flex h-6 w-6 items-center justify-center text-ink-faint"
+        >
+          <ChevronLeftIcon width={16} height={16} />
+        </button>
         <p className="text-sm font-medium text-ink">
-          {year}년 {month + 1}월
+          {viewYear}년 {viewMonth + 1}월
         </p>
+        <button
+          type="button"
+          aria-label="다음 달"
+          onClick={goToNextMonth}
+          disabled={isCurrentMonth}
+          className="flex h-6 w-6 items-center justify-center text-ink-faint disabled:opacity-30"
+        >
+          <ChevronRightIcon width={16} height={16} />
+        </button>
         <span className="group relative inline-flex">
           <button
             type="button"

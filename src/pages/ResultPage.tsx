@@ -1,6 +1,7 @@
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { Button, Card, FaceDiagram, Pill } from '../components'
+import { Button, Card, FacePhotoDiagram, Pill } from '../components'
 import { ArrowRightIcon, CareIcon } from '../components/icons'
+import guidePhoto from '../assets/oil-paper-guide.jpg'
 import { getOilScoreColorVar, getOilScoreTone, TONE_VAR } from '../lib/skinAdvice'
 import type { AdviceTone } from '../lib/skinAdvice'
 import { mockMeasurements, SKIN_CHARACTERS } from '../services/data'
@@ -75,8 +76,8 @@ export function ResultPage() {
         </div>
 
         <div className="flex flex-col items-center gap-1">
-          <FaceDiagram
-            className="h-40 w-40"
+          <FacePhotoDiagram
+            photoSrc={guidePhoto}
             markers={result.zoneScores.map((zone) => ({
               zone: zone.zone,
               color: getOilScoreColorVar(zone.score),
