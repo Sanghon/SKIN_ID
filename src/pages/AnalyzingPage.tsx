@@ -15,6 +15,7 @@ const STATUS_LINES = [
 interface CaptureState {
   imageUrl: string
   capturedAt: string
+  roi?: { x: number; y: number; width: number; height: number }
 }
 
 export function AnalyzingPage() {
@@ -42,6 +43,7 @@ export function AnalyzingPage() {
       analysisEngine.analyzeOilPaper({
         imageUrl: state.imageUrl,
         capturedAt: state.capturedAt,
+        roi: state.roi,
       }),
       new Promise((resolve) => setTimeout(resolve, stepMs * STATUS_LINES.length)),
     ])

@@ -142,7 +142,7 @@ export function HomePage() {
         </div>
 
         <div className="flex flex-col gap-2 p-5">
-          <Link to="/guide">
+          <Link to="/capture">
             <Button className="w-full">
               피부 체크 시작하기
               <ArrowRightIcon width={16} height={16} />

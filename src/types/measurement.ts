@@ -3,11 +3,20 @@ import type { FaceZone, SkinCharacterId, SkinType, ZoneScore } from './skin'
 export interface OilAnalysisInput {
   imageUrl: string
   capturedAt: string
+  roi?: NormalizedRoi
+}
+
+export interface NormalizedRoi {
+  x: number
+  y: number
+  width: number
+  height: number
 }
 
 export interface OilAnalysisResult {
   oilCoverage: number
   oilIntensity: number
+  spotDensity?: number
   tZoneScore: number
   uZoneScore: number
   oilScore: number

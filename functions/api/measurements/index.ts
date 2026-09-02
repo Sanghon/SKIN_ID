@@ -31,6 +31,7 @@ interface CreateBody {
   result: {
     oilCoverage: number
     oilIntensity: number
+    spotDensity?: number
     tZoneScore: number
     uZoneScore: number
     oilScore: number
@@ -50,8 +51,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   await env.DB.prepare(
     `INSERT INTO measurements
-       (id, user_id, captured_at, image_url, oil_coverage, oil_intensity, t_zone_score, u_zone_score, oil_score, confidence, skin_type, skin_character)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (id, user_id, captured_at, image_url, oil_coverage, oil_intensity, spot_density, t_zone_score, u_zone_score, oil_score, confidence, skin_type, skin_character)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
     .bind(
       id,
@@ -60,6 +61,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       body.imageUrl ?? '',
       r.oilCoverage,
       r.oilIntensity,
+      r.spotDensity ?? 0,
       r.tZoneScore,
       r.uZoneScore,
       r.oilScore,

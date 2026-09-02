@@ -1,0 +1,1 @@
+ALTER TABLE measurements ADD COLUMN spot_density REAL NOT NULL DEFAULT 0;
