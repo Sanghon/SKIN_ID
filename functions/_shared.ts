@@ -75,6 +75,7 @@ export interface MeasurementRow {
   image_url: string
   oil_coverage: number
   oil_intensity: number
+  spot_density: number
   t_zone_score: number
   u_zone_score: number
   oil_score: number
@@ -92,6 +93,7 @@ export function toMeasurementDTO(row: MeasurementRow, zoneScores: ZoneScoreRow[]
     result: {
       oilCoverage: row.oil_coverage,
       oilIntensity: row.oil_intensity,
+      spotDensity: row.spot_density ?? 0,
       tZoneScore: row.t_zone_score,
       uZoneScore: row.u_zone_score,
       oilScore: row.oil_score,

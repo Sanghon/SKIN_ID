@@ -105,6 +105,25 @@ export function ResultPage() {
         </div>
       </Card>
 
+      <Card>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-faint">ROI Optical Analysis</p>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-xl bg-surface-2 px-2 py-3">
+            <p className="text-xl font-bold tabular-nums text-ink">{result.oilCoverage}%</p>
+            <p className="mt-1 text-[11px] text-ink-faint">Oil Area</p>
+          </div>
+          <div className="rounded-xl bg-surface-2 px-2 py-3">
+            <p className="text-xl font-bold tabular-nums text-ink">{result.oilIntensity}</p>
+            <p className="mt-1 text-[11px] text-ink-faint">Intensity</p>
+          </div>
+          <div className="rounded-xl bg-surface-2 px-2 py-3">
+            <p className="text-xl font-bold tabular-nums text-ink">{result.spotDensity ?? 0}</p>
+            <p className="mt-1 text-[11px] text-ink-faint">Spot Density</p>
+          </div>
+        </div>
+        <p className="mt-2 text-center text-[10px] text-ink-faint">Spot Density: ROI 100% 면적당 검출 스팟 수</p>
+      </Card>
+
       <div className="grid grid-cols-2 gap-3">
         <Link to={`/result/${measurement.id}/zones`} state={measurement}>
           <Button variant="secondary" className="w-full">

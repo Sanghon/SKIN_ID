@@ -13,6 +13,7 @@ const EMPTY_MEASUREMENT: Measurement = {
   result: {
     oilCoverage: 0,
     oilIntensity: 0,
+    spotDensity: 0,
     tZoneScore: 0,
     uZoneScore: 0,
     oilScore: 0,
