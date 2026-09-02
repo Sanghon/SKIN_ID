@@ -1,12 +1,12 @@
 import type { FaceDiagramMarker, FaceZoneName } from './FaceDiagram'
 
-/** Zone anchor points as % of the photo's width/height, tuned for the default cropped portrait. */
+/** Zone anchor points as % of the rendered (object-cover cropped) photo, tuned to sit exactly over oil-paper-guide.jpg's baked-in number badges. */
 const ZONE_POSITIONS_PCT: Record<FaceZoneName, [number, number]> = {
-  이마: [48, 19],
-  코: [46, 63],
-  왼쪽볼: [23, 62],
-  오른쪽볼: [73, 60],
-  턱: [44, 88],
+  이마: [49.8, 25.2],
+  코: [49.8, 51.8],
+  왼쪽볼: [27.8, 59.3],
+  오른쪽볼: [71.7, 59.3],
+  턱: [49.8, 80.2],
 }
 
 export function FacePhotoDiagram({
@@ -35,7 +35,6 @@ export function FacePhotoDiagram({
               height: size,
               transform: 'translate(-50%, -50%)',
               backgroundColor: m.color ?? 'var(--accent-soft)',
-              opacity: 0.88,
             }}
           >
             {m.label != null && <span className="text-[9px] font-bold text-ink">{m.label}</span>}

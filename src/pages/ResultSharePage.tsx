@@ -1,5 +1,6 @@
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { Card } from '../components'
+import { SkinCharacterIcon } from '../components/icons'
 import { mockMeasurements, SKIN_CHARACTERS } from '../services/data'
 import type { Measurement } from '../types/measurement'
 
@@ -22,7 +23,13 @@ export function ResultSharePage() {
       </header>
 
       <Card elevated className="flex flex-col items-center gap-2 py-10 text-center">
-        <p className="text-sm text-ink-soft">{character.nameEn}</p>
+        <span
+          className="flex h-16 w-16 items-center justify-center rounded-full text-accent"
+          style={{ backgroundColor: 'var(--accent-soft)' }}
+        >
+          <SkinCharacterIcon characterId={character.id} width={32} height={32} />
+        </span>
+        <p className="mt-1 text-sm text-ink-soft">{character.nameEn}</p>
         <p className="text-6xl font-semibold tabular-nums text-ink">{measurement.result.oilScore}</p>
         <p className="text-sm text-ink-faint">{character.name} · {measurement.result.skinType}</p>
       </Card>

@@ -431,3 +431,100 @@ export function WeatherConditionIcon({
   const Icon = CONDITION_ICON[condition]
   return <Icon {...props} />
 }
+
+export function SaharaCharacterIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} fill="none" {...props}>
+      <circle cx="12" cy="7.4" r="3.2" fill="currentColor" />
+      <path d="M2.5 18.6c2-2.5 4.6-3.9 7.2-3.9s4.6 1.5 6.4 1.5 3-1 5.4-1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path
+        d="M2.5 22c2-2.1 4.6-3.3 7.2-3.3s4.6 1.3 6.4 1.3 3-0.8 5.4-0.8"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        opacity="0.5"
+      />
+    </svg>
+  )
+}
+
+export function CactusCharacterIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="10" y="6" width="4" height="14" rx="2" />
+      <path
+        d="M10 10H7.6a1.9 1.9 0 0 0-1.9 1.9v2.6a1.9 1.9 0 0 0 1.9 1.9H10"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M14 8h2.4a1.9 1.9 0 0 1 1.9 1.9v1.6a1.9 1.9 0 0 1-1.9 1.9H14"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+      <rect x="6" y="20" width="12" height="1.8" rx="0.9" />
+    </svg>
+  )
+}
+
+export function BalanceCharacterIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} fill="none" {...props}>
+      <line x1="12" y1="3.4" x2="12" y2="19" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <line x1="5" y1="7" x2="19" y2="7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M5 7 2.6 12.2a2.6 2.6 0 0 0 4.8 0L5 7Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M19 7l-2.4 5.2a2.6 2.6 0 0 0 4.8 0L19 7Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M8.5 20.5h7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function DoubleLifeCharacterIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 3a9 9 0 1 0 0 18V3Z" />
+      <path d="M12 3a9 9 0 1 1 0 18" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  )
+}
+
+export function OilFieldCharacterIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} fill="none" {...props}>
+      <path d="M12 3 6 19h12L12 3Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      <line x1="8.4" y1="12" x2="15.6" y2="12" stroke="currentColor" strokeWidth="1.4" />
+      <line x1="7.2" y1="15.5" x2="16.8" y2="15.5" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="12" cy="3" r="1.3" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
+export function OilKingCharacterIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M4 9.5 8 13l4-7 4 7 4-3.5-1.6 9.3H5.6L4 9.5Z" />
+      <circle cx="12" cy="19.3" r="1.1" />
+    </svg>
+  )
+}
+
+const CHARACTER_ICON = {
+  sahara: SaharaCharacterIcon,
+  cactus: CactusCharacterIcon,
+  balance: BalanceCharacterIcon,
+  'double-life': DoubleLifeCharacterIcon,
+  'oil-field': OilFieldCharacterIcon,
+  'oil-king': OilKingCharacterIcon,
+} as const
+
+export function SkinCharacterIcon({
+  characterId,
+  ...props
+}: SVGProps<SVGSVGElement> & { characterId: keyof typeof CHARACTER_ICON }) {
+  const Icon = CHARACTER_ICON[characterId]
+  return <Icon {...props} />
+}

@@ -15,7 +15,14 @@ const ZONE_STATUS_LABEL: Record<AdviceTone, string> = {
   coral: '매우 높음',
 }
 
-const T_ZONE = new Set<FaceZone>(['이마', '코'])
+/** Dot radius per zone, sized to fully cover oil-paper-guide.jpg's baked-in number badges. */
+const ZONE_MARKER_RADIUS: Record<FaceZone, number> = {
+  이마: 13,
+  코: 13,
+  왼쪽볼: 12,
+  오른쪽볼: 12,
+  턱: 14,
+}
 
 function useResolvedMeasurement(): Measurement {
   const location = useLocation()
@@ -81,7 +88,7 @@ export function ResultPage() {
             markers={result.zoneScores.map((zone) => ({
               zone: zone.zone,
               color: getOilScoreColorVar(zone.score),
-              radius: T_ZONE.has(zone.zone) ? 10 : 7,
+              radius: ZONE_MARKER_RADIUS[zone.zone],
             }))}
           />
           <div className="flex items-center gap-2">
