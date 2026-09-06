@@ -1,7 +1,7 @@
 export const brand = {
-  name: 'OILOG',
+  name: 'SkinQuant AX',
   tagline: '오늘의 피지 패턴',
-  taglineEn: 'Skin History & Tracking',
+  taglineEn: 'Physical AI Skin Intelligence',
   description: '기름종이 한 장으로 확인하는 오늘의 피부 상태',
   colors: {
     paper: '#f5f6f2',
@@ -11,8 +11,8 @@ export const brand = {
     lab: '#3e5c86',
   },
   logo: {
-    full: '/brand/oilog-logo-full.png',
-    wordmark: '/brand/oilog-wordmark.png',
+    wordmark: '/brand/skinquant-logo-full.png',
+    icon: '/brand/skinquant-icon.png',
   },
 } as const
 

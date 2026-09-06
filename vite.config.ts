@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/favicon-32.png', 'icons/apple-touch-icon.png'],
       manifest: {
-        name: 'OILOG',
-        short_name: 'OILOG',
+        name: 'SkinQuant AX',
+        short_name: 'SkinQuant AX',
         description: '기름종이 한 장으로 확인하는 오늘의 피부 상태',
         lang: 'ko',
         theme_color: '#16294d',
